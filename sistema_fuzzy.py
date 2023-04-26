@@ -34,32 +34,27 @@ sistema_gorjeta = ctrl.ControlSystemSimulation(sistema_controle)
 print("=-" * 20)
 print("\t\t\tCalculadora de Gorjeta\t\t\t")
 print("-=" * 20)
-
+atendimento = ""
 while True:
-    atendimento = ""
     while True:
         qualidade = input("Digite a avaliação da qualidade (entre 0 e 10): ")
         serviço = input("Digite a avaliação do serviço (entre 0 e 10): ")
-        if not qualidade.isnumeric() and not serviço.isnumeric():
-            print("Por favor, digite um valor numérico.")
-        else:
-            qualidade = float(qualidade)
-            serviço = float(serviço)
-    
-
-        if not (0 <= qualidade <= 10 or not 0 <= serviço <= 10):
-         print("Digite um valor entre 0 e 10:")
-
-        else:
+        if qualidade.isdigit() and serviço.isdigit() and 0 <= int(qualidade) <= 10 and 0 <= int(serviço) <= 10:
+            qualidade = int(qualidade)
+            serviço = int(serviço)
             break
+        else:
+            print("Digite um valor entre 0 e 10.")
 
     sistema_gorjeta.input['qualidade'] = qualidade
+
     sistema_gorjeta.input['serviço'] = serviço
     sistema_gorjeta.compute()
     valor_gorjeta = locale.currency(
         float(str(sistema_gorjeta.output['gorjeta'])))
 
     # Atendimento
+
     if 0 <= qualidade <= 5 and 0 <= serviço <= 5:
         valor_gorjeta = locale.currency(
             float(str(sistema_gorjeta.output['gorjeta']).replace('R$', '').replace(',', '.')) * 0.05)
@@ -75,7 +70,7 @@ while True:
         valor_gorjeta = locale.currency(
             float(str(sistema_gorjeta.output['gorjeta']).replace('R$', '').replace(',', '.')) * 0.15)
         atendimento = "Ótimo"
-    print("A sua gorjeta  foi de {} ".format(valor_gorjeta, atendimento))
+    print("A sua gorjeta  foi de {} ".format((valor_gorjeta), atendimento))
     # Quebra o loop
     opção = input("Deseja continuar? (S/N) ")
     if opção not in "Ss":
@@ -91,10 +86,8 @@ elif atendimento == "Regular":
           ("\U0001F6F6") * 10)
 
     print(("\U0001F6F6") * 10, "Volte,Sempre e que beleza", ("\U0001F6F6") * 10)
-elif atendimento == "Ruim":
+elif atendimento=="Ruim":
     print(("\U0001F6F6") * 10, "Obrigado por ter escolhido nosso restaurante   para almoçar  Bar do Mauro Gil!!!",
           ("\U0001F6F6") * 10)
 
-    print(("\U0001F6F6") * 10, "Iremos melhorar  e que beleza", ("\U0001F6F6") * 10)
-else:
-    print("Digite novamente as opções que digitou  são inválidas!!!!")
+    print(("\U0001F6F6") * 10, "Iremos melhorar  e que beleza", ("\U0001F6F6") * 27)
