@@ -40,18 +40,12 @@ while True:
     while True:
         qualidade = input("Digite a avaliação da qualidade (entre 0 e 10): ")
         serviço = input("Digite a avaliação do serviço (entre 0 e 10): ")
-        if not qualidade.isnumeric() and not serviço.isnumeric():
-            print("Por favor, digite um valor numérico.")
-        else:
-            qualidade = float(qualidade)
-            serviço = float(serviço)
-    
-
-        if not (0 <= qualidade <= 10 or not 0 <= serviço <= 10):
-         print("Digite um valor entre 0 e 10:")
-
-        else:
+        if qualidade.isdigit() and serviço.isdigit() and 0 <= int(qualidade) <= 10 and 0 <= int(serviço) <= 10:
+            qualidade = int(qualidade)
+            serviço = int(serviço)
             break
+        else:
+            print("Digite um valor entre 0 e 10.")
 
     sistema_gorjeta.input['qualidade'] = qualidade
     sistema_gorjeta.input['serviço'] = serviço
