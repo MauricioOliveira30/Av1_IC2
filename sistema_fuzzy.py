@@ -47,7 +47,7 @@ while True:
             serviço = float(serviço)
     
 
-        if  (0 <= qualidade <= 10 and  0 <= serviço <= 10):
+        if  (0 > qualidade or qualidade> 10 and  0 > serviço or serviço> 10):
          print("Digite um valor entre 0 e 10:")
 
         else:
