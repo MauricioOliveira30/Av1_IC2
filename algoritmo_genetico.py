@@ -27,12 +27,12 @@ TAXA_MUTAÇÃO = 0.01
 
 # Função para obter a cotação de uma criptomoeda
 def get_cotacao(criptomoedas):
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={criptomoedas}&vs_currencies=usd"
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={criptomoedas}&vs_currencies=BRL"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
         if criptomoedas in data:
-            return data[criptomoedas]["usd"]
+            return data[criptomoedas]["BRL"]
     return None
 
 
@@ -93,4 +93,4 @@ melhor_indivíduo = max(população, key=evolução)
 # Exibir o resultado
 print("Alocação ótima de investimentos em criptomoedas:")
 for i in range(len(criptomoedas)):
-    print(f"{criptomoedas[i]}: {melhor_indivíduo[i] * 100:.2f}%A")
+    print(f"{criptomoedas[i]}: {melhor_indivíduo[i] * 100:.2f}%")
