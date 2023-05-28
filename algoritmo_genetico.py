@@ -1,13 +1,18 @@
 import random
 
 # Dados iniciais
-criptomoedas = ['Bitcoin', 'Ethereum', 'Ripple', 'Dogdecoin', 'Basic Attention']
-preços_iniciais = [134379.67, 9074.52, 2.31,0.36, 1.10]  # Preços iniciais fictícios das criptomoedas
-historico_retornos = [
+criptomoedas[]
+while True:
+    cripto= input("Digiteas criptos que deseja avaliar: ")
+    preços_iniciais = [134379.67, 9074.52, 2.31,0.36, 1.10]  # Preços iniciais fictícios das criptomoedas
+    historico_retornos = [
     [1.31, 0.11, 0.02, 0.01, 0.04],   # Retornos históricos para o período 1
     [0.66, 0.05, 0.05, 0.03, 0.02],   # Retornos históricos para o período 2
     [0.73, 0.03, 0.04, 0.02, 0.05]    # Retornos históricos para o período 3
 ]
+    if cripto=="sair":
+        break
+    criptomoedas.append(float(cripto))
 
 # Parâmetros do algoritmo genético
 TAM_POPULAÇÃO = 100
@@ -69,4 +74,4 @@ melhor_indivíduo = max(população, key=evolução)
 # Exibir o resultado
 print("Alocação ótima de investimentos em criptomoedas:")
 for i in range(len(criptomoedas)):
-    print(f"{criptomoedas[i]}: {melhor_indivíduo[i]*100:.2f}%")
+    print(f"{criptomoedas[i]}: {melhor_indivíduo[i]*100:.2f}%A")
