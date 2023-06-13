@@ -1,96 +1,106 @@
 import random
-import requests
+from deap import algorithms, base, creator, tools
+import matplotlib.pyplot as plt
 
-# Dados iniciais
-criptomoedas = []
-TAM = int(input("Digite quantas criptomoedas quer avaliar:"))
-i = 1
-while i <= TAM:
-    i += 1
-    cripto = input("Digite as criptos que deseja avaliar ou digite sair (para sair): ")
+# Definindo a função de fitness
+def evaluate_portfolio(individual):
+    cryptocurrencies = ['BTC', 'ETH', 'XRP', 'LTC', 'ADA']
 
-    historico_retornos = [
-        [1.31, 0.11, 0.02, 0.01, 0.04],  # Retornos históricos para o período 1
-        [0.66, 0.05, 0.05, 0.03, 0.02],  # Retornos históricos para o período 2
-        [0.73, 0.03, 0.04, 0.02, 0.05]  # Retornos históricos para o período 3
-    ]
-    if cripto == "sair":
-        break
-    criptomoedas.append(cripto)
+    # Dados históricos de preços das criptomoedas (exemplo fictício)
+    price_data = {
+        'BTC': [10000, 11000, 12000, 13000, 14000],
+        'ETH': [200, 220, 240, 260, 280],
+        'XRP': [0.3, 0.32, 0.35, 0.38, 0.4],
+        'LTC': [50, 55, 60, 65, 70],
+        'ADA': [0.1, 0.11, 0.12, 0.13, 0.14]
+    }
 
+    # Calculando o valor total da carteira inicialmente como zero
+    portfolio_value = 0
 
-# Parâmetros do algoritmo genético
-TAM_POPULAÇÃO = 100
-NUM_GERAÇÃO = 50
-TAXA_MUTAÇÃO = 0.01
+    # Calculando o valor total da carteira
+    for crypto, weight in zip(cryptocurrencies, individual):
+        price_history = price_data[crypto]
+        price = price_history[-1]  # Usando o último preço disponível como referência
+        portfolio_value += weight * price
 
+    # Calculando o lucro como a diferença entre o valor atual da carteira e um valor de referência (exemplo fictício)
+    reference_value = 10000  # Valor inicial da carteira
+    profit = portfolio_value - reference_value
 
-# Função para obter a cotação de uma criptomoeda
-def get_cotacao(criptomoedas):
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={criptomoedas}&vs_currencies=BRL"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        if criptomoedas in data:
-            return data[criptomoedas]["BRL"]
-    return None
+    return profit,
+    return fitness_value,
 
 
-# Função de avaliação (fitness)
-def evolução(indivíduo):
-    retorno_total = 0
-    for periodo in historico_retornos:
-        retorno_periodo = sum([retorno * peso for retorno, peso in zip(periodo, indivíduo)])
-        retorno_total += retorno_periodo
-    return retorno_total
+# Definindo o tamanho da população e o número de gerações
+POPULATION_SIZE = 100
+NUM_GENERATIONS = 50
+
+# Definindo o número de criptomoedas na carteira
+NUM_CRYPTOCURRENCIES = 5
+
+# Definindo os limites superiores e inferiores para os pesos das criptomoedas
+LOWER_BOUND = 0.0
+UPPER_BOUND = 1.0
+
+# Criando os tipos de fitness e indivíduo utilizando a biblioteca DEAP
+creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("Individual", list, fitness=creator.FitnessMax)
+
+# Criando a caixa de ferramentas (toolbox) com as funções de inicialização, mutação, cruzamento e avaliação
+toolbox = base.Toolbox()
+toolbox.register("attribute", random.uniform, LOWER_BOUND, UPPER_BOUND)
+toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attribute, n=NUM_CRYPTOCURRENCIES)
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+toolbox.register("evaluate", evaluate_portfolio)
+toolbox.register("mate", tools.cxTwoPoint)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2)
+toolbox.register("select", tools.selTournament, tournsize=3)
 
 
-# Inicialização da população
-def criador_indivíduo():
-    return [random.uniform(0, 1) for _ in range(len(criptomoedas))]
+def main():
+    # Inicializando a população
+    population = toolbox.population(n=POPULATION_SIZE)
 
+    # Avaliando todos os indivíduos na população
+    fitness_values = map(toolbox.evaluate, population)
+    for ind, fit in zip(population, fitness_values):
+        ind.fitness.values = fit
 
-população = []
+    # Definindo a taxa de cruzamento, mutação e o número de indivíduos a serem selecionados para a próxima geração
+    CXPB, MUTPB, N_SELECTED = 0.5, 0.2, 10
 
-# Criação da população inicial
-for _ in range(TAM_POPULAÇÃO):
-    indivíduo = criador_indivíduo()
-    população.append(indivíduo)
+    # Rodando o algoritmo genético
+    for generation in range(NUM_GENERATIONS):
+        print("Generation", generation)
 
-# Loop principal do algoritmo genético
-for generation in range(NUM_GERAÇÃO):
-    # Avaliação da aptidão (fitness)
-    aptidão = [evolução(indivíduo) for indivíduo in população]
-# Seleção dos indivíduos para reprodução
-selecionados_pais = random.choices(população, weights=aptidão, k=TAM_POPULAÇÃO)
+        # Selecionando os indivíduos para a próxima geração
+        offspring = toolbox.select(population, N_SELECTED)
 
-# Reprodução (cruzamento e mutação)
-offspring = []
-for i in range(0, TAM_POPULAÇÃO, 2):
-    pai1 = selecionados_pais[i]
-    pai2 = selecionados_pais[i + 1]
-    filho1 = pai1[:]
-    filho2 = pai2[:]
+        # Realizando o cruzamento e a mutação
+        offspring = algorithms.varAnd(offspring, toolbox, cxpb=CXPB, mutpb=MUTPB)
 
-    # Cruzamento (recombinação)
-    ponto_crossover = random.randint(1, len(criptomoedas) - 1)
-    filho1[ponto_crossover:] = pai2[ponto_crossover:]
-    filho2[ponto_crossover:] = pai1[ponto_crossover:]
+        # Avaliando os novos indivíduos
+        fitness_values = map(toolbox.evaluate, offspring)
+        for ind, fit in zip(offspring, fitness_values):
+            ind.fitness.values = fit
 
-    # Mutação
-    for j in range(len(criptomoedas)):
-        if random.random() < TAXA_MUTAÇÃO:
-            filho1[j] = random.uniform(0, 1)
-            filho2[j] = random.uniform(0, 1)
+        # Substituindo a população atual pelos novos indivíduos
+        population[:] = offspring
 
-    offspring.append(filho1)
-    offspring.append(filho2)
-# Substituição da população antiga pela nova
-população = offspring
-# Encontrar o indivíduo mais apto na população final
-melhor_indivíduo = max(população, key=evolução)
+        # Extraindo os valores de fitness da população atual
+        fitnesses = [ind.fitness.values[0] for ind in population]
 
-# Exibir o resultado
-print("Alocação ótima de investimentos em criptomoedas:")
-for i in range(len(criptomoedas)):
-    print(f"{criptomoedas[i]}: {melhor_indivíduo[i] * 100:.2f}%")
+        # Imprimindo a melhor solução encontrada na geração atual
+        best_index = fitnesses.index(max(fitnesses))
+        print("Best portfolio:", population[best_index])
+        print("Best fitness:", max(fitnesses))
+        print("--------------------------")
+plt.plot(range(NUM_GENERATIONS) )
+plt.xlabel("Generation")
+plt.ylabel("Best Fitness")
+plt.title("Evolution of Best Fitness")
+plt.show()
+
+if __name__ == "__main__":
+    main()
